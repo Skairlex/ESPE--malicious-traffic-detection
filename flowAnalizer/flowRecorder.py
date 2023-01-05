@@ -141,6 +141,7 @@ class FlowRecorder(BaseClass):
         Run flowRecorder
         """
         self.logger.info("Starting flowRecorder")
+        #print('Starting flowRecorder')
         time0 = time.time()
         if self.input_filename:
             # File Mode

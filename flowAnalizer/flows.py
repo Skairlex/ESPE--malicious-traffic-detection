@@ -46,6 +46,9 @@ from baseclass import BaseClass
 # For flow hashing:
 import nethash
 
+import joblib
+import sklearn
+
 class Flows(BaseClass):
     """
     The Flows class represents cummulative information about flows
@@ -70,9 +73,10 @@ class Flows(BaseClass):
         # Python dictionaries to hold current and archived flow records:
         self.flow_cache = OrderedDict()
         self.flow_archive = OrderedDict()
+        self.loaded_rf = joblib.load("my_random_forest.joblib")
 
         # Create a Flow object for flow operations:
-        self.flow = Flow(config, self.logger, self.flow_cache, self.flow_archive, mode)
+        self.flow = Flow(config, self.logger, self.flow_cache, self.flow_archive, mode,self.loaded_rf)
 
         # Counter for packets that we ignored for various reasons:
         self.packets_ignored = 0
@@ -107,6 +111,7 @@ class Flows(BaseClass):
         """
         ingest a packet from pcapy (live capture) into flows.
         """
+        print('listening')
         # Get timestamp from header:
         sec, ms = hdr.getts()
         timestamp = sec + ms / 1000000
@@ -118,12 +123,15 @@ class Flows(BaseClass):
 
         if packet.ingested:
             # Update the flow with packet info:
+            print('captured')
             self.flow.update(packet)
             self.packets_processed += 1
             if self.packets_processed % infoFrequency == 0:
                 self.logger.info("Already processed %d packets", self.packets_processed)
+            print()
         else:
             self.packets_ignored += 1
+            #print('ignored')
 
     def write(self, file_name):
         """
@@ -182,7 +190,7 @@ class Flow(object):
     Designed to be instantiated once by the Flows class
     and set to different flow context by packet object
     """
-    def __init__(self, config, logger, flow_cache, flow_archive, mode):
+    def __init__(self, config, logger, flow_cache, flow_archive, mode,loaded_rf):
         """
         Initialise with references to logger and flow_cache dictionary
         and mode of operation.
@@ -195,6 +203,7 @@ class Flow(object):
         self.flow_cache = flow_cache
         self.flow_archive = flow_archive
         self.mode = mode
+        self.loaded_rf=loaded_rf
         # Get value from config:
         self.flow_expiration = config.get_value("flow_expiration")
         self.logger.info("Flows will expire after %s seconds of inactivity", self.flow_expiration)
@@ -205,14 +214,17 @@ class Flow(object):
         Add or update flow in in flow_cache dictionary
         """
         if packet.flow_hash in self.flow_cache:
+            #print('get data')
             # Found existing flow in dict, update it:
             if self._is_current_flow(packet, self.flow_cache[packet.flow_hash]):
+                print('updating')
                 # Update standard flow parameters:
                 self._update_found(packet)
                 if self.mode == 'b':
                     # Also update bidirectional flow parameters:
                     self._update_found_bidir(packet)
             else:
+                print('archiving')
                 # Expired flow so archive it:
                 self._archive_flow(packet)
                 # Delete from dict:
@@ -226,6 +238,49 @@ class Flow(object):
             self._create_new(packet)
             if self.mode == 'b':
                 self._create_new_bidir(packet)
+        #Obtiene el hash o key de la ultima transaccion y obtiene del dict    
+        self._createVector(packet)
+        #flow_hash = packet.flow_hash
+        #reading=self.flow_cache[flow_hash]
+        
+
+    def _createVector(self, packet):
+        flow_hash = packet.flow_hash
+        flow_dict=self.flow_cache[flow_hash]
+        vector_response=[
+            flow_dict['flowDuration']*1000000,
+            flow_dict['f_pktTotalCount'],
+            flow_dict['b_pktTotalCount'],
+            flow_dict['avg_piat']*1000000,
+            flow_dict['std_dev_piat']*1000000,
+            flow_dict['max_piat']*1000000,
+            flow_dict['min_piat']*1000000,
+            flow_dict['f_flowDuration']*1000000,
+            flow_dict['f_avg_piat']*1000000,
+            flow_dict['f_std_dev_piat']*1000000,
+            flow_dict['f_max_piat']*1000000,
+            flow_dict['f_min_piat']*1000000,
+            flow_dict['b_flowDuration']*1000000,
+            flow_dict['b_avg_piat']*1000000,
+            flow_dict['b_std_dev_piat']*1000000,
+            flow_dict['b_max_piat']*1000000,
+            flow_dict['b_min_piat']*1000000,
+            flow_dict['std_dev_ps'] 
+        ]
+        #print(vector_response)
+        predict_2=self.loaded_rf.predict([vector_response])
+        for data in predict_2:
+            if(data==0):
+                print('Beningn')
+            if(data==1):
+                print('Web Attack Brute Force')
+            if(data==2):
+                print('Web Attack XSS')
+            if(data==3):
+                print('Web Attack SQL injection')
+
+
+
 
     def _update_found(self, packet):
         """
@@ -241,7 +296,10 @@ class Flow(object):
         flow_dict['octetTotalCount'] += packet.length
         # Update the min/max/avg/std_dev of the packet sizes:
         flow_dict['min_ps'] = min(flow_dict['length'])
+        #print('jhjj: ')
+        #print(min(flow_dict['length']))
         flow_dict['max_ps'] = max(flow_dict['length'])
+        #print(max(flow_dict['length']))
         flow_dict['avg_ps'] = flow_dict['octetTotalCount'] / flow_dict['pktTotalCount']
         flow_dict['std_dev_ps'] = np.std(flow_dict['length'])
         # Store the timestamps of the newly captured packet:
@@ -291,6 +349,7 @@ class Flow(object):
             # Update the flow end/duration (the start does not change)
             flow_dict['f_flowEnd'] = packet.timestamp
             flow_dict['f_flowDuration'] = (packet.timestamp - flow_dict['f_flowStart'])
+            #print((packet.timestamp - flow_dict['f_flowStart'])*1000000)
             # at last update the min/max/avg/std_dev of packet-inter-arrival-times
             flow_dict['f_min_piat'] = min(flow_dict['f_iats'])
             flow_dict['f_max_piat'] = max(flow_dict['f_iats'])
@@ -487,6 +546,7 @@ class Flow(object):
         flow_hash = packet.flow_hash
         flow_dict = self.flow_cache[flow_hash]
         start_timestamp = flow_dict['flowStart']
+        print('start_timestamp: '+start_timestamp)
         ip_src = flow_dict['src_ip']
         ip_dst = flow_dict['dst_ip']
         proto = flow_dict['proto']

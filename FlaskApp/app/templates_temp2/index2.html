@@ -1,0 +1,16 @@
+{% extends  './layout.html' %}
+{% block title %}MT Analizer{% endblock %}
+{% block body %}
+<h1>MT Analizer</h1>
+<h1>{{data.bienvenida}}</h1>
+{% if data.numero_cursos == 2 %}
+<h2>Pack premium</h2>
+{% else %}
+<h2> Pack free</h2>
+{% endif %}
+<ul>
+    {% for c in data.cursos %}
+    <li>{{c}}</li>
+    {% endfor %}
+</ul>
+{% endblock %}

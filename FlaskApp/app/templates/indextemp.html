@@ -1,0 +1,65 @@
+{% extends  './layout.html' %}
+
+{% block card1 %}
+<p class="card-text">Presione Iniciar para comenzar análisis.</p>
+<form action="/reviewInterfaces" method="POST">
+    <button id=test class="btn btn-primary" type="submit">Iniciar</button>
+</form>
+{% endblock %}
+{% block card2 %}
+{% with messages=get_flashed_messages() %}
+{% if messages %}
+
+{% if messages[0].tipo==1 %}
+<div class="card m-2">
+    <div class="card-header">
+        <h3 class="card-title" align="center" >Seleccione una interfaz</h3>
+    </div>
+    <div class="card-body">
+        <ul class="list-group"></ul>
+
+        
+
+        <div class="row">
+            <!-- {{messages}} -->
+
+            {% for dat in messages[0].dato %}
+
+            <div href="/background_process_test" class="col-4" align="center" style="padding: 50px 0px 50px 0px;">
+
+                <a href="/background_process_test" class="list-group-item list-group-item-action">
+                    
+                    Interfaz 
+                    {{dat}}
+
+                    <br><br>
+                    
+                    <img src="../static/images/ethernet.png" align="center" style="max-width:30%; ">
+
+                    <br>
+                </a>
+            </div>
+
+            {% endfor %}
+
+        </div>
+    
+    </div>
+        
+        
+
+        </ul>
+    </div>
+</div>
+{% endif %}
+
+{% else %}
+<br>
+<h6 class="card-title text-center ">Informacións</h6>
+<br>
+<br>
+<p class="card-text text-center " style="color: gray;">No existe Información</p>
+
+{% endif %}
+{% endwith %}
+{% endblock %}

@@ -111,18 +111,6 @@ def contacto(nombre,edad):
     }
     return render_template('contacto.html',data=data)
 
-@app.route('/shutdown')
-def shutdown():
-
-    # If not logged in, return back to the login page.
-    if not session or not session['logged_in']:
-        return render_template('index.html')
-
-    # Logged_in, continue...
-    sys.exit()
-    os.exit(0)
-    return
-
 # MENU OPCIONES
 @app.route('/menu/<menuNav>/<analisisMenu>')
 def menu_inicio(menuNav,analisisMenu):
@@ -323,14 +311,6 @@ def insertarDatos():
     insert.delay()
     return 'DATOS INCERTADOS.....'
     #return insert()
-
-
-@celery.task(name='celery_example.listen_flow')
-def listen_flow(num):
-    #return string
-    #update_state(state='PROGRESS')
-    run_by_web(num)
-    return redirect(url_for('index'))
 
 @celery.task(name='celery_example.listen_flow')
 def listen_flow(num):

@@ -176,11 +176,15 @@ class FlowRecorder(BaseClass):
         sniffer = pcapy.open_live(self.interface, maxlen, promiscuous, read_timeout)
         # Start sniffing:
         sniffing = True
+        inicio = 0
+        fin = 15
         while sniffing:
             self.logger.info("Start sniffing on interface %s", self.interface)
             self.logger.info("Sniffing can be aborted via pressing Ctrl-c")
             try:
                 sniffer.loop(0, self.flows.ingest_packet)
+                print(inicio)
+                inicio +=1
             except (KeyboardInterrupt, SystemExit):
                 self.logger.info("SIGINT (Ctrl-c) detected.")
                 sniffing = False

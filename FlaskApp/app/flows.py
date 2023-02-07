@@ -43,11 +43,61 @@ import dpkt
 # For logging configuration:
 from baseclass import BaseClass
 
+from time import sleep
+
 # For flow hashing:
 import nethash
 
 import joblib
 import sklearn
+
+#import app
+
+import os
+
+from sqlalchemy.sql import func
+
+from sqlalchemy.ext.declarative import declarative_base
+
+from sqlalchemy import Column, Integer, String
+from sqlalchemy import create_engine
+from sqlalchemy.orm import sessionmaker
+
+from celery_config import make_celery
+
+engine = create_engine('mysql://root:root@localhost:3306/analizerAlchemy')
+BaseCl = declarative_base()
+
+Session = sessionmaker(engine)
+session = Session()
+
+class Escaner(BaseCl):
+    __tablename__ = 'escaner'
+    id = Column(Integer, primary_key=True)
+    tipo = Column(Integer, nullable=False)
+    nombre = Column(String(100), nullable=False)
+    cantidad = Column(Integer, nullable=False)
+
+    def __str__(self):
+        return self.nombre
+
+def buscarTipo(tipo):
+    #print("ENJOY   ++++ ")
+    dato = session.query(Escaner).filter(Escaner.id == tipo).first()
+    #print(dato.cantidad)
+
+    return dato.cantidad
+
+def actualizar(tipo):
+    #print(tipo)
+    dato = session.query(Escaner).filter(Escaner.id == tipo).first()
+    temp = buscarTipo(tipo) + 1
+    dato.cantidad = temp
+    #print("NUEVO VALOR ES: ------>",temp)
+    session.commit()
+
+    return temp
+
 
 class Flows(BaseClass):
     """
@@ -111,6 +161,8 @@ class Flows(BaseClass):
         """
         ingest a packet from pcapy (live capture) into flows.
         """
+        sleep(1)
+        print('')
         print('listening')
         # Get timestamp from header:
         sec, ms = hdr.getts()
@@ -269,18 +321,20 @@ class Flow(object):
         ]
         #print(vector_response)
         predict_2=self.loaded_rf.predict([vector_response])
+        #print(predict_2)
         for data in predict_2:
             if(data==0):
-                print('Beningn')
+                
+                print('Beningn PASOOO', actualizar(1))
             if(data==1):
-                print('Web Attack Brute Force')
+                actualizar(2)
+                print('Web Attack Brute Force', actualizar(2))
             if(data==2):
-                print('Web Attack XSS')
+                actualizar(3)
+                print('Web Attack XSS', actualizar(3))
             if(data==3):
-                print('Web Attack SQL injection')
-
-
-
+                actualizar(4)
+                print('Web Attack SQL injection', actualizar(4))
 
     def _update_found(self, packet):
         """

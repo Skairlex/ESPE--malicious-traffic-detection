@@ -25,6 +25,8 @@ from __future__ import division
 # General imports:
 import sys
 
+from datetime import datetime
+
 # For CSV operations:
 import csv
 
@@ -247,8 +249,12 @@ class Flow(object):
     def _createVector(self, packet):
         flow_hash = packet.flow_hash
         flow_dict=self.flow_cache[flow_hash]
+        attackForce=False
+        #print('flowDuration',flow_dict['flowDuration'])
+        #if(flow_dict['flowDuration']>0.1):
+        #    attackForce=True
         vector_response=[
-            flow_dict['flowDuration']*1000000,
+            #flow_dict['flowDuration']*1000000,
             flow_dict['f_pktTotalCount'],
             flow_dict['b_pktTotalCount'],
             flow_dict['avg_piat']*1000000,
@@ -269,14 +275,16 @@ class Flow(object):
         ]
         #print(vector_response)
         predict_2=self.loaded_rf.predict([vector_response])
+        #print('flow',vector_response[0])
         for data in predict_2:
+            #print('Value:',data,' , ',flow_hash)
             if(data==0):
                 print('Beningn')
             if(data==1):
                 print('Web Attack Brute Force')
-            if(data==2):
-                print('Web Attack XSS')
             if(data==3):
+                print('Web Attack XSS')
+            if(data==2):
                 print('Web Attack SQL injection')
 
 
@@ -311,6 +319,7 @@ class Flow(object):
             - flow_dict['times'][-2])
         # Update the flow end/duration (the start does not change)
         flow_dict['flowEnd'] = packet.timestamp
+        #print('flowEnd',flow_dict['flowEnd'])
         flow_dict['flowDuration'] = (packet.timestamp - flow_dict['flowStart'])
         # at last update the min/max/avg/std_dev of packet-inter-arrival-times
         flow_dict['min_piat'] = min(flow_dict['iats'])

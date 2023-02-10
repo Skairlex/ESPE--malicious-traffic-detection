@@ -161,7 +161,7 @@ class Flows(BaseClass):
         """
         ingest a packet from pcapy (live capture) into flows.
         """
-        sleep(1)
+        #sleep(1)
         print('')
         print('listening')
         # Get timestamp from header:
@@ -300,7 +300,7 @@ class Flow(object):
         flow_hash = packet.flow_hash
         flow_dict=self.flow_cache[flow_hash]
         vector_response=[
-            flow_dict['flowDuration']*1000000,
+            #flow_dict['flowDuration']*1000000,
             flow_dict['f_pktTotalCount'],
             flow_dict['b_pktTotalCount'],
             flow_dict['avg_piat']*1000000,

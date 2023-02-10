@@ -6,7 +6,7 @@ from celery import result
 from celery.contrib.abortable import AbortableTask
 
 from celery.task.control import revoke
-
+from app_functions import App_functions
 
 from flask_sqlalchemy import SQLAlchemy
 
@@ -16,9 +16,8 @@ import os
 
 from sqlalchemy.sql import func
 
-from sqlalchemy.ext.declarative import declarative_base
 
-from sqlalchemy import Column, Integer, String
+
 from sqlalchemy import create_engine
 from sqlalchemy.orm import sessionmaker
 
@@ -28,13 +27,16 @@ from billiard.exceptions import Terminated
 
 from datetime import datetime
 
-#import jsonpickle
 
+from models import Results,Escaner,Bitacora,Base,Analisis
+
+
+#Conexion SQLAlchemy para Celery
 app= Flask(__name__)
 app.config['CELERY_BROKER_URL']='amqp://localhost//'
 app.config['CELERY_RESULT_BACKEND']='db+mysql://root:root@localhost:3306/analizer'
 
-#Conexion SQLAlchemy
+#Conexion SQLAlchemy para App
 app.config['SQLALCHEMY_DATABASE_URI']='mysql://root:root@localhost:3306/analizerAlchemy'
 app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
 
@@ -44,88 +46,19 @@ celery=make_celery(app)
 db = SQLAlchemy(app)
 
 engine = create_engine('mysql://root:root@localhost:3306/analizerAlchemy')
-Base = declarative_base()
-BaseEjemplo = declarative_base()
-BaseBitacora = declarative_base()
 
 Session = sessionmaker(engine)
 session = Session()
 
-#res = result.AsyncResult(job_id)
 
-class Results(BaseEjemplo):
-    __tablename__ = 'user'
-    id = db.Column(db.Integer, primary_key=True)
-    firstname = db.Column(db.String(100), nullable=False)
-
-    def __str__(self):
-        return self.firstname
-
-class Escaner(Base):
-    __tablename__ = 'escaner'
-    id = db.Column(db.Integer, primary_key=True)
-    tipo = db.Column(db.Integer, nullable=False)
-    nombre = db.Column(db.String(100), nullable=False)
-    cantidad = db.Column(db.Integer, nullable=False)
-
-    def __str__(self):
-        return self.nombre
-
-class Bitacora(BaseBitacora):
-    __tablename__ = 'bitacora'
-    id = Column(Integer, primary_key=True)
-    terminal = Column(String(100), nullable=False)
-    fecha = Column(String(100), nullable=False)
-    beningn = Column(String(100), nullable=False)
-    attack_brute_force = Column(String(100), nullable=False)
-    attack_XSS = Column(String(100), nullable=False)
-    attack_SQL_injection = Column(String(100), nullable=False)
-
-    def __str__(self):
-        return self.terminal
-
-
-class User(db.Model):
-    id = db.Column('id', db.Integer, primary_key=True)
-    data = db.Column('data', db.String(50))
-
-    
-
-class Student(db.Model):
-    id = db.Column(db.Integer, primary_key=True)
-    firstname = db.Column(db.String(100), nullable=False)
-    lastname = db.Column(db.String(100), nullable=False)
-    email = db.Column(db.String(80), unique=True, nullable=False)
-    age = db.Column(db.Integer)
-    created_at = db.Column(db.DateTime(timezone=True),
-                           server_default=func.now())
-    bio = db.Column(db.Text)
-
-    def __repr__(self):
-        return f'<Student {self.firstname}>'
-
+#PAGINA PRINCIPAL
 @app.route('/')
 def index():
-    #return "<h1>Hola Mundo</h1>"
-    cursos=['PHP','Python','Django','Java']
-    data1={'titulo':'index',
-    'bienvenida': 'Saludos',
-    'cursos':cursos,
-    'numero_cursos':len(cursos)
-    }
     data={'tipo':2,
     'dato': "interfaces"
     }
     return render_template('index.html',data=data)
 
-@app.route('/contacto/<nombre>/<int:edad>')
-def contacto(nombre,edad):
-    data= {
-        'titulo':'Contacto',
-        'nombre': nombre,
-        'edad':edad
-    }
-    return render_template('contacto.html',data=data)
 
 # MENU OPCIONES
 @app.route('/menu/<menuNav>/<analisisMenu>')
@@ -133,176 +66,75 @@ def menu_inicio(menuNav,analisisMenu):
     
     menuOp = int(format(menuNav))
     analisisOp = int(format(analisisMenu))
-    print ("Inicio .........")
-    #predict()
-    interfaces=watchInterface()
-
-    puertos = list()
-    for i in range(len(interfaces)):
-        puertos.append(
-            {
-                "id": i, 
-                "dato": interfaces[i]
-            }
-        )
-
-    print('puertos: ',puertos)
-
-    print('len: ',len(interfaces))
-
-    data={
-        'menu': menuOp,
-        'analisisMenu': analisisOp,
-        'tipo': 1,
-        'interfaces': puertos
-    }
-
+    print ("Seleccion de menu .........")
+    print(menuOp)
+  
+    if menuOp==4:
+        print(menuOp)
+        list_analisis=get_list_analisis()
+        print(list_analisis)
+        data=App_functions.create_data_analisis(menuOp,analisisOp,1,'',list_analisis)
+        #data=App_functions.create_data_menu(menuOp,analisisOp,1,'')
+    else:
+        data=App_functions.create_data_menu(menuOp,analisisOp,1,'')
+    
     flash(data)
-    print("bye")
     return redirect(url_for('index'))
     
 
+#BOTON INICIAR
 @app.route('/reviewInterfaces/<menuNav>/<analisisMenu>',methods=['POST'])
 def method_name(menuNav,analisisMenu):
-    print ("Hello .........")
-    #predict()
-
     menuOp = int(format(menuNav))
     analisisOp = int(format(analisisMenu))
-    print ("Inicio .........")
-    #predict()
     interfaces=watchInterface()
-
-    puertos = list()
-    for i in range(len(interfaces)):
-        puertos.append(
-            {
-                "id": i, 
-                "dato": interfaces[i]
-            }
-        )
-
-    print('puertos: ',puertos)
-
-    print('len: ',len(interfaces))
-
-    data={
-        'menu': menuOp,
-        'analisisMenu': analisisOp,
-        'tipo': 1,
-        'interfaces': puertos
-    }
-
+    puertos = App_functions.convert_interfaces(interfaces)
+    data=App_functions.create_data_menu(menuOp,analisisOp,1,puertos)
     flash(data)
-    print("bye")
     return redirect(url_for('index'))
 
-#background process happening without any refreshing
+
+#Background process happening without any refreshing
+#INTERFACE SELECTED
 @app.route('/background_process_test/<param>/<menuNav>/<analisisMenu>')
 def background_process_test(param,menuNav,analisisMenu):
-    #predict()
-    #param = request.arg.get('params1','SIN PARAMETROS')
-
     puerto = int(format(param))
     menuOp = int(format(menuNav))
     analisisOp = int(format(analisisMenu))
-
     interfaces=watchInterface()
-
-    terminal = ""
-
-    puertos = list()
-    for i in range(len(interfaces)):
-        puertos.append(
-            {
-                "id": i, 
-                "dato": interfaces[i]
-            }
-        )
-        if i == puerto:
-            terminal = interfaces[i]
-
-    print('puertos id: ',terminal)
-    #print('puertos: ',puertos[puerto].dato)
-
-    print('len: ',len(interfaces))
-
-    ###########
-
-    Base.metadata.drop_all(engine)
-    Base.metadata.create_all(engine)
+    data_interfaces=App_functions.get_data_interfaces(puerto,interfaces)
     crearRegistros()
-
-    BaseBitacora.metadata.create_all(engine)
-
-    ##########
-    
-    
     result=listen_flow.delay((int(puerto)))
-    #result=listen_flow.delay('john')
-    #result.wait()
-    print(result.state)
-    print(result)
-    #print(result.status)
-    #print(result.id)
-    #print(result.get())
-
-    #indiceP = int(puertos[(puerto+1)].dato)
-    #print("EL VALOR INGRESADO ES:  ",indiceP)
-
-    data={
-        'menu': menuOp,
-        'analisisMenu': analisisOp,
-        'tipo': 1,
-        'interfaces': puertos,
-        'task': result.id,
-        'puerto': terminal
-    }
-
-    #sleep(3)
-
+    #print(result.state)
     #print(result)
-
+    crear_datos_analisis(result.id)
+    data=App_functions.create_data_task(menuOp,analisisOp,1,data_interfaces['interfaces'],result.id,data_interfaces['puerto'])
     flash(data)
-
-    # return ("nothing")
     return redirect(url_for('index'))
 
+
+
+
+#REVOCA PROCESO EN RABBITMQ
 @app.route('/cancelar/<task_id>/<menuNav>/<analisisMenu>/<terminal>')
 def cancelar(task_id, menuNav, analisisMenu, terminal):
     print("ID Tarea: ",task_id)
     #task = reverse.AsyncResult(task_id)
     #task.abort()
-
     tarea = format(task_id)
     menuOp = int(format(menuNav))
     analisisOp = int(format(analisisMenu))
 
     interfaces=watchInterface()
-
-    puertos = list()
-    for i in range(len(interfaces)):
-        puertos.append(
-            {
-                "id": i, 
-                "dato": interfaces[i]
-            }
-        )
-
-    print('puertos: ',puertos)
-
-    print('len: ',len(interfaces))
+    puertos=App_functions.convert_interfaces(interfaces)
 
     revoke(task_id, terminate=True)
 
-    dato_1 = session.query(Escaner).filter(Escaner.id == 1).first()
-    dato_2 = session.query(Escaner).filter(Escaner.id == 2).first()
-    dato_3 = session.query(Escaner).filter(Escaner.id == 3).first()
-    dato_4 = session.query(Escaner).filter(Escaner.id == 4).first()
-
-    paquetes = dato_1.cantidad + dato_2.cantidad + dato_3.cantidad + dato_4.cantidad
-
-    result=crearRegistrosBitacora.delay(format(terminal))
+    data_analisis = get_data_analisis()
+    observations = App_functions.get_observations(data_analisis)
+    update_analisis(task_id,observations['result'])
+    
+    #result=crearRegistrosBitacora.delay(format(terminal))
 
     #crearRegistrosBitacora("terminal")
 
@@ -316,10 +148,34 @@ def cancelar(task_id, menuNav, analisisMenu, terminal):
         'tipo': 1,
         'interfaces': puertos,
         'task': tarea,
-        'paquetes': paquetes,
+        'paquetes': observations['num_paquetes'],
         'fecha':fechaText,
-        'analisis':
-        [
+        'analisis':data_analisis
+        
+            
+    }
+
+    flash(data)
+
+    return redirect(url_for('index'))
+
+def update_analisis(task_id,result):
+    analisis = session.query(Analisis).filter(Analisis.task_id == task_id).first()
+    analisis.fechaFin=App_functions.get_date()
+    analisis.resultado=result
+    analisis.estado='Finalizado'
+    session.add(analisis)
+    session.commit()
+
+
+def get_data_analisis():
+    dato_1 = session.query(Escaner).filter(Escaner.id == 1).first()
+    dato_2 = session.query(Escaner).filter(Escaner.id == 2).first()
+    dato_3 = session.query(Escaner).filter(Escaner.id == 3).first()
+    dato_4 = session.query(Escaner).filter(Escaner.id == 4).first()
+
+    paquetes = dato_1.cantidad + dato_2.cantidad + dato_3.cantidad + dato_4.cantidad
+    analisis=[
             {
                 "tipo": dato_1.tipo,
                 "nombre": dato_1.nombre,
@@ -328,7 +184,7 @@ def cancelar(task_id, menuNav, analisisMenu, terminal):
             {
                 "tipo": dato_2.tipo,
                 "nombre": dato_2.nombre,
-                "Cantidad": dato_2.cantidad
+                "Cantidad": 0 if dato_2.cantidad<20 else dato_2.cantidad
             },
             {
                 "tipo": dato_3.tipo,
@@ -341,15 +197,26 @@ def cancelar(task_id, menuNav, analisisMenu, terminal):
                 "Cantidad": dato_4.cantidad
             },
         ]
-            
-    }
+    return analisis
 
-    flash(data)
+def get_list_analisis():
+    resp = session.query(Analisis).all()
+    list_analisis = list()
+    for i in resp:
+        list_analisis.append(
+            {
+                'id' : i.id, 
+                'fechaInicio' : i.fechaInicio[0:16],
+                'fechaFin':'-' if i.fechaFin is None else i.fechaFin[0:16],
+                'resultado': i.resultado,
+                'task_id':i.task_id,
+                'estado':i.estado
+            }
+        )
+    return list_analisis
 
-    return redirect(url_for('index'))
 
 def insertarDatos():
-
     insert.delay()
     return 'DATOS INCERTADOS.....'
     #return insert()
@@ -364,7 +231,7 @@ def listen_flow(num):
 @celery.task(name='celery_example.reverse')
 def reverse(string):
     print("PENSANDO...")
-    sleep(10)
+    #sleep(10)
     #return string
     print("FIN...")
     print(string)
@@ -394,7 +261,9 @@ def crearRegistrosBitacora(terminal):
     dato_3 = session.query(Escaner).filter(Escaner.id == 3).first()
     dato_4 = session.query(Escaner).filter(Escaner.id == 4).first()
 
-    registro = Bitacora(terminal=terminal, fecha=fechaText, 
+    registro = Bitacora(
+    terminal=terminal, 
+    fecha=fechaText, 
     beningn =               dato_1.cantidad, 
     attack_brute_force =    dato_2.cantidad, 
     attack_XSS =            dato_3.cantidad,
@@ -406,21 +275,39 @@ def crearRegistrosBitacora(terminal):
 
     return 'Nuevo registro bitacora ingresado...'
 
+
+#CREAR REGISTROS BASE PARA CONTEO DE PAQUETES
 def crearRegistros():
     print("REGISTROS BASE")
-    dato_1 = Escaner(tipo=1, nombre="Benigno",                  cantidad=0)
-    dato_2 = Escaner(tipo=2, nombre="Web Attack Brute Force",   cantidad=0)
-    dato_3 = Escaner(tipo=3, nombre="Web Attack XSS",           cantidad=0)
-    dato_4 = Escaner(tipo=4, nombre="Web Attack SQL injection", cantidad=0)
+    atacks=session.query(Escaner).all()
+    print(atacks)
+    if len(atacks)==0: 
+        print('Creacion ataques en base')
+        dato_1 = Escaner(tipo=1, nombre="Benigno",                  cantidad=0)
+        dato_2 = Escaner(tipo=2, nombre="Web Attack Brute Force",   cantidad=0)
+        dato_3 = Escaner(tipo=3, nombre="Web Attack XSS",           cantidad=0)
+        dato_4 = Escaner(tipo=4, nombre="Web Attack SQL injection", cantidad=0)
+        session.add(dato_1)
+        session.add(dato_2)
+        session.add(dato_3)
+        session.add(dato_4)
+    else:
+        print('Encerando ataques en base')
+        for atack in atacks:
+            atack.cantidad=0
+    session.commit()
+    return 'Datos creados alchemy....'
 
-    session.add(dato_1)
-    session.add(dato_2)
-    session.add(dato_3)
-    session.add(dato_4)
 
+#CREAR REGISTROS PARA BITACORA
+def crear_datos_analisis(task_id):
+    fecha=App_functions.get_date()
+    #time_stamp = time.time()
+    #fechaText = datetime.fromtimestamp(time_stamp)
+    analisis = Analisis(fechaInicio=fecha, resultado="Protegido",task_id=task_id,estado='Ejecutandose')
+    session.add(analisis)
     session.commit()
 
-    return 'Datos creados alchemy....'
 
 def actualizar():
     print("REGISTROS ACTUALIZADO")
@@ -455,9 +342,14 @@ if __name__=='__main__':
     #buscarTipo(2)
     #buscarTipo(3)
     #buscarTipo(4)
+    Base.metadata.drop_all(engine)
+    Base.metadata.create_all(engine)
+    print('Base created...')
     app.add_url_rule('/query_string',view_func=query_string)
     app.register_error_handler(404,pagina_no_encontrada)
     app.run(debug=True,port=5000)
+
+    
 
     
 

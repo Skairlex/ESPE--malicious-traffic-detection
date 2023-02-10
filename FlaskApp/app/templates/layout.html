@@ -10,7 +10,7 @@
     <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.4.1/css/bootstrap.min.css">
 
     <link rel="stylesheet" href="https://use.fontawesome.com/releases/v5.8.1/css/all.css" integrity="sha384-50oBUHEmvpQ+1lW4y57PTFmhCaXp0ML5d60M1M7uH2+nqUivzIebhndOJK28anvf" crossorigin="anonymous">
-
+    <script src="https://kit.fontawesome.com/d2d16bd154.js" crossorigin="anonymous"></script>
     <script class="u-script" type="text/javascript" src="{{ url_for('static',filename='./js/jquery.js')}}"></script>
     <script class="u-script" type="text/javascript" src="{{ url_for('static',filename='./js/nicepage.js')}}"></script>
 
@@ -38,11 +38,12 @@
         
             <nav>
                 <ul>
-                    <li><a href="/menu/3/1">ESCANEO DE PUERTOS</a></li>
-                    <li><a href="/menu/2/1">ACERCA DE
-                    </a></li>
-                    
+                    <li><a href="/menu/3/1">ESCANEO DE RED</a></li>
+                    <li><a href="/menu/4/1">HISTORIAL</a></li>
+                    <li><a href="/menu/5/1">CONFIGURACIÓN</a></li>
+                    <li><a href="/menu/2/1">ACERCA DE</a></li>
                     <li><a href="/menu/1/1">INICIO</a></li>
+
                 </ul>
             </nav><!-- / nav -->
         
@@ -55,9 +56,6 @@
         
         {% block menu %}
         {% endblock %}
-
-        
-
         
 
         <script src="//ajax.googleapis.com/ajax/libs/jquery/1.9.1/jquery.min.js"></script>

@@ -2,14 +2,9 @@
 
 
 {% block menu %}
-
-
-            {% with messages=get_flashed_messages() %}
-
-            <!-- {{messages[0]}} -->
-            
-                {% if messages %}
-                    {% if messages[0].menu==1 %}
+    {% with messages=get_flashed_messages() %}
+        {% if messages %}
+                {% if messages[0].menu==1 %}
                     <div id="informacion" class="container" style="padding: 50px 100px 50px 100px; display: block;">
                         <div class="row">
                             <!-- <div class="col-5" style="background-color: aqua;"> -->
@@ -21,26 +16,24 @@
                                 <!-- Espacio de separación -->
                             </div>
                             <div class="col-5 align-self-center">
-                                <a href="/menu/3/1" style="color: inherit; text-decoration: none; vertical-align: middle;" >
-                                    <h2 class="text-center">Información</h2>
-                                    MT Anailizar es una aplicación web que se encarga
-                                    de analizar el trafico de red existente en busca
-                                    algun conflicto como malware....
+                                <p>    
+                                <h2 class="text-center">Información</h2>
+                                    MT Analizer es una aplicación web que se encarga
+                                    de escanear el trafico de red existente en busqueda
+                                    algun conflicto provocado por el trafico de red malicioso.
                                     <br><br>
-            
+                                </p>
+                                <a href="/menu/3/1" style="color: inherit; text-decoration: none; vertical-align: middle;" >
                                     <div class="zoomCentral" align="center">
-                                        <button type="button" class="btn btn-outline-primary">Escanear puertos</button>
+                                        <button type="button" class="btn btn-outline-primary">Escanear red</button>
                                     </div>
                                 </a>
                             </div>
                         </div>
                     
                     </div>
-                    {% endif %}
-
-                    
-
-                    {% if messages[0].menu==2 %}
+                {% endif %}
+            {% if messages[0].menu==2 %}
                     <div id="contactos" class="container" style="padding: 50px 100px 50px 100px;">
                         <div class="row">
                         <div class="col-5" >
@@ -70,16 +63,50 @@
                         </div>
                     
                     </div>
-                    {% endif %}
+            {% endif %}
+            {% if messages[0].menu==4 %}
+            
+            <div id="contactos" class="container" style="padding: 50px 10px 50px 10px;">
+                <div class="card w-90 h-95" style="height: 25rem;">
+                    <div class="card-body">
+                <h4 style="text-align: center;padding: 3px;">Historial de análisis</h4>
+                
+                    <table class="table table-bordered" >
+                        <thead class="thead-dark">
+                        <tr>
+                            <th scope="col">#</th>
+                            <th scope="col">Inicio</th>
+                            <th scope="col">Fin</th>
+                            <th scope="col">Resultado</th>
+                            <th scope="col">Estado</th>
+                        </tr>
+                        </thead>
+                        <tbody>
+                        {%for i in messages[0].list_analisis %}
+                            <tr>
+                                <th scope="row" style="text-align: center;">{{i.id}}</th>
+                                <td style="text-align: center;"> {{i.fechaInicio}} </td>
+                                <td style="text-align: center;"> {{i.fechaFin}} </td>
+                                <td style="text-align: center;"> {{i.resultado}} 
+                                    {% if  i.resultado =='Protegido' %}
+                                    &nbsp;&nbsp;<i class="far fa-check-circle fa-lg" style="color: green; "></i>
+                                    {% else %}
+                                    &nbsp;&nbsp;<i class="far fa-times-circle fa-lg" style="color: red; "></i>
+                                    {% endif %}
 
-                    <!-- {{messages[0].menu}}
-                    {{messages[0].analisisMenu}} -->
-
-                    {% if messages[0].menu==3 %}
-
-                    <!-- {{messages[0].menu}}
-                    {{messages[0].analisisMenu}} -->
-
+                                </td>
+                                <td style="text-align: center;"> {{i.estado}} </td>
+                            </tr>
+                        {%endfor%}
+                        
+                        </tbody>
+                    </table>
+                
+            </div>
+            </div>
+            </div>
+            {% endif %}
+            {% if messages[0].menu==3 %}
                     <div id="analisis" class="container" style="padding: 50px 100px 50px 100px;">
                         <div class="row" >
                 
@@ -102,15 +129,20 @@
                                         <div class="card mt-3 " style="height: 75%;">
                                             <div>
                                                 <br>
-                                                <h6 class="card-title text-center ">Informacións</h6>
+                                                <h6 class="card-title text-center ">Información</h6>
                                                 <br>
                                                 <br>
                                                 <p class="card-text text-center " style="color: gray;">No existe Información</p>
                                             </div>
                                         </div>
-                                        {% endif %}
-
-                                        {% if messages[0].analisisMenu==2 %}
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>         
+            {% endif %}
+            
+            {% if messages[0].analisisMenu==2 %}
                                         <div class="card text-center ">
                                             <div class="card-header">
                                                 <h3 class="card-title" align="center" >Seleccione una interfaz</h3>
@@ -132,9 +164,8 @@
                                     
                                             </div>
                                         </div>
-                                        {% endif %}
-
-                                        {% if messages[0].analisisMenu==3 %}
+            {% endif %}
+            {% if messages[0].analisisMenu==3 %}
                                         <div class="card text-center ">
                                             <div class="card-header">
                                                 <h5 class="card-title" align="center" >ANÁLISIS EN PROCESO</h5>
@@ -148,9 +179,8 @@
                                             </form>
                                         </div>
                         
-                                        {% endif %}
-
-                                        {% if messages[0].analisisMenu==4 %}
+            {% endif %}
+            {% if messages[0].analisisMenu==4 %}
                                         <div class="card text-center ">
                                             <div class="card-header">
                                                 <h5 class="card-title" align="center" >RESULTADOS</h5>
@@ -192,7 +222,7 @@
                                                 </div>
                                             </div>
                                         </div>
-                                        {% endif %}
+            {% endif %}
                                         
                                     </div>
                                 </div>
@@ -200,11 +230,8 @@
                     
                         </div>
                     </div>
-                    {% endif %}
-
-
-
-                    {% else %}
+        {% endif %}
+        {% else %}
                     <div id="informacion" class="container" style="padding: 50px 100px 50px 100px; display: block;">
                         <div class="row">
                             <!-- <div class="col-5" style="background-color: aqua;"> -->
@@ -216,36 +243,32 @@
                                 <!-- Espacio de separación -->
                             </div>
                             <div class="col-5 align-self-center">
-                                <a href="/menu/3/1" style="color: inherit; text-decoration: none; vertical-align: middle;" >
+                                <p>
                                     <h2 class="text-center">Información</h2>
-                                    MT Anailizar es una aplicación web que se encarga
-                                    de analizar el trafico de red existente en busca
-                                    algun conflicto como malware....
+                                    MT Analizer es una aplicación web que se encarga
+                                    de escanear el flujo de paquetes de una red en busqueda
+                                    algun conflicto provocado por el tráfico de red malicioso.
                                     <br><br>
-            
+                                </p>
+                                <a href="/menu/3/1" style="color: inherit; text-decoration: none; vertical-align: middle;" >
                                     <div class="zoomCentral" align="center">
-                                        <button type="button" class="btn btn-outline-primary">Escanear puertos</button>
+                                        <button type="button" class="btn btn-outline-primary">Escanear red</button>
                                     </div>
                                 </a>
-
-                                <!-- <a href="/insertarDatos" style="color: inherit; text-decoration: none; vertical-align: middle;" >
-                                    <h2 class="text-center">Inserta DB</h2>
-                                </a> -->
                             </div>
                         </div>
                     
                     </div>
 
-                    {% endif %}
-            {% endwith %}
-        {% endblock %}
-
-        {% block card1 %}
-        <p class="card-text">Presione Iniciar para comenzar análisis.</p>
-        <form action="/reviewInterfaces" method="POST">
-            <button id=test class="btn btn-primary" type="submit">Iniciar</button>
-        </form>
-        {% endblock %}
+        {% endif %}
+    {% endwith %}
+{% endblock %}
+{% block card1 %}
+    <p class="card-text">Presione Iniciar para comenzar análisis.</p>
+    <form action="/reviewInterfaces" method="POST">
+        <button id=test class="btn btn-primary" type="submit">Iniciar</button>
+    </form>
+{% endblock %}
 
 
         

@@ -82,3 +82,28 @@ class App_functions:
             'result':result
         }    
         return observations
+
+    def create_data_task(menu,analisisMenu,tipo,interfaces,task,puerto):
+        data={
+        'menu': menu,
+        'analisisMenu': analisisMenu,
+        'tipo': tipo,
+        'interfaces': interfaces,
+        'task': task,
+        'puerto': puerto
+        }
+        return data
+    
+    def create_data_atack(atacks):
+        data = list()
+        for i in range(len(atacks)):
+            data.append(
+                {
+                    "puerto": atacks[i].puerto, 
+                    "fecha": atacks[i].fecha,
+                    "tipo":atacks[i].tipo
+                }
+            )
+        #print('puertos: ',puertos)
+        return data
+

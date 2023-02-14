@@ -78,6 +78,8 @@ class FlowRecorder(BaseClass):
         self.interface = ""
         self.interface_number=4
         self.output_filename = ""
+        self.id_analisis=""
+        self.id_task=""
         # Direction parameter recorded in mode:
         self.mode = ""
     
@@ -117,7 +119,7 @@ class FlowRecorder(BaseClass):
         time5 = time.time()
         self.logger.info("Finished, total time %s seconds", time5 - time0)
 
-    def automatic_run(self,interfaz):
+    def automatic_run(self,interfaz,id_analisis,id_task):
         """
         Run flowRecorder
         """
@@ -125,6 +127,8 @@ class FlowRecorder(BaseClass):
         self.mode = 'b'
         self.input_filename = 'resultsfinal.csv'
         self.interface_number=interfaz
+        self.id_analisis=id_analisis
+        self.id_task=id_task
         self.logger.info("Starting flowRecorder")
         #print('Starting flowRecorder')
         time0 = time.time()
@@ -178,12 +182,14 @@ class FlowRecorder(BaseClass):
         sniffing = True
         inicio = 0
         fin = 15
+        self.flows.id_analisis=self.id_analisis
+        self.flows.id_task=self.id_task
         while sniffing:
             self.logger.info("Start sniffing on interface %s", self.interface)
             self.logger.info("Sniffing can be aborted via pressing Ctrl-c")
             try:
                 sniffer.loop(0, self.flows.ingest_packet)
-                print(inicio)
+                #print(inicio)
                 inicio +=1
             except (KeyboardInterrupt, SystemExit):
                 self.logger.info("SIGINT (Ctrl-c) detected.")
@@ -214,10 +220,10 @@ def _getInterface(inter):
     #idx=ifs[int(inter)]
     return ifs[inter] 
 
-def run_by_web(interfaz):
+def run_by_web(interfaz,id_analisis,id_task):
     flowRecorder = FlowRecorder()
     # Start flowRecorder with command line arguments from position 1:
-    flowRecorder.automatic_run(interfaz)
+    flowRecorder.automatic_run(interfaz,id_analisis,id_task)
 
 def watchInterface():
     # Grab a list of interfaces that pcap is able to listen on.
@@ -238,7 +244,7 @@ def watchInterface():
     # Ask the user to choose an interface from the list.
     count = 0
     for iface in ifs:
-        print ('%i - %s' % (count, iface))
+        #print ('%i - %s' % (count, iface))
         count += 1
     return ifs 
 

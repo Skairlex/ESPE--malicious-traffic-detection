@@ -53,9 +53,11 @@ class Resultado(Base):
     __tablename__ = 'resultados'
     id = Column(Integer, primary_key=True)
     tipo = Column(String(100), nullable=False)
-    ip = Column(String(100), nullable=False)
+    #ip = Column(String(100), nullable=False)
     puerto = Column(String(100), nullable=False)
-    hora = Column(String(100), nullable=False)
+    fecha = Column(String(100), nullable=False)
+    flow_hash=Column(String(100), nullable=False)
+    task_id=Column(String(100), nullable=False)
     analisis_id=Column(Integer,ForeignKey('analisis.id'))
     analisis=relationship(Analisis,backref ='resultados')
 

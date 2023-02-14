@@ -65,38 +65,17 @@ from sqlalchemy.orm import sessionmaker
 
 from celery_config import make_celery
 
-engine = create_engine('mysql://root:root@localhost:3306/analizerAlchemy')
-BaseCl = declarative_base()
+from base_func import buscarTipo,actualizar,add_atack
+from app_functions import App_functions
 
-Session = sessionmaker(engine)
-session = Session()
 
-class Escaner(BaseCl):
-    __tablename__ = 'escaner'
-    id = Column(Integer, primary_key=True)
-    tipo = Column(Integer, nullable=False)
-    nombre = Column(String(100), nullable=False)
-    cantidad = Column(Integer, nullable=False)
+#BaseCl = declarative_base()
 
-    def __str__(self):
-        return self.nombre
 
-def buscarTipo(tipo):
-    #print("ENJOY   ++++ ")
-    dato = session.query(Escaner).filter(Escaner.id == tipo).first()
-    #print(dato.cantidad)
 
-    return dato.cantidad
 
-def actualizar(tipo):
-    #print(tipo)
-    dato = session.query(Escaner).filter(Escaner.id == tipo).first()
-    temp = buscarTipo(tipo) + 1
-    dato.cantidad = temp
-    #print("NUEVO VALOR ES: ------>",temp)
-    session.commit()
 
-    return temp
+
 
 
 class Flows(BaseClass):
@@ -134,6 +113,9 @@ class Flows(BaseClass):
         # Counter for all the processed packets:
         self.packets_processed = 0
 
+        self.id_task=''
+        self.id_analisis=''
+
     def ingest_pcap(self, dpkt_reader):
         """
         ingest packet data from dpkt reader of pcap file
@@ -162,7 +144,6 @@ class Flows(BaseClass):
         ingest a packet from pcapy (live capture) into flows.
         """
         #sleep(1)
-        print('')
         print('listening')
         # Get timestamp from header:
         sec, ms = hdr.getts()
@@ -170,17 +151,18 @@ class Flows(BaseClass):
 
         # Instantiate an instance of Packet class with packet info:
         packet = Packet(self.logger, timestamp, packet, self.mode)
+        packet.id_analisis=self.id_analisis
+        packet.id_task=self.id_task
 
         infoFrequency = self.config.get_value("infoFrequency")
 
         if packet.ingested:
             # Update the flow with packet info:
-            print('captured')
+            #print('captured')
             self.flow.update(packet)
             self.packets_processed += 1
             if self.packets_processed % infoFrequency == 0:
-                self.logger.info("Already processed %d packets", self.packets_processed)
-            print()
+                self.logger.info("Already processed %d packets", self.packets_processed)         
         else:
             self.packets_ignored += 1
             #print('ignored')
@@ -286,6 +268,7 @@ class Flow(object):
                 if self.mode == 'b':
                     self._create_new_bidir(packet)
         else:
+            print('creating')
             # Flow doesn't exist yet, create it:
             self._create_new(packet)
             if self.mode == 'b':
@@ -322,19 +305,27 @@ class Flow(object):
         #print(vector_response)
         predict_2=self.loaded_rf.predict([vector_response])
         #print(predict_2)
+        #print(packet.id_analisis)
+        #print(packet.id_task)
         for data in predict_2:
             if(data==0):
-                
-                print('Beningn', actualizar(1))
+                type_atack='Beningn'
+                print(type_atack)
+                actualizar(1)
+                #add_atack(type_atack,packet.tp_src,App_functions.get_date(),packet.id_analisis,packet.flow_hash)
             if(data==1):
-                #actualizar(2)
-                print('Web Attack Brute Force', actualizar(2))
-            if(data==2):
-                #actualizar(3)
-                print('Web Attack XSS', actualizar(3))
+                type_atack='Web Attack Brute Force'
+                print(type_atack)
+                actualizar(2)
+                add_atack(type_atack,packet.tp_src,App_functions.get_date(),packet.id_analisis,packet.flow_hash,packet.id_task)
             if(data==3):
+                type_atack='Web Attack XSS'
+                print(type_atack)
+                actualizar(3)
+                add_atack(type_atack,packet.tp_src,App_functions.get_date(),packet.id_analisis,packet.flow_hash,packet.id_task)
+            #if(data==2):
                 #actualizar(4)
-                print('Web Attack SQL injection', actualizar(4))
+                #print('Web Attack SQL injection', actualizar(4))
 
     def _update_found(self, packet):
         """
@@ -677,6 +668,8 @@ class Packet(object):
         self.tp_seq_src = 0
         self.tp_seq_dst = 0
         self.ingested = False
+        self.id_analisis=""
+        self.id_task=""
 
         try:
             # Read packet into dpkt to parse headers:

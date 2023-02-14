@@ -28,6 +28,10 @@
                                         <button type="button" class="btn btn-outline-primary">Escanear red</button>
                                     </div>
                                 </a>
+                                <!-- <button id="send">Send</button>
+                                <script>$('#send').on('click', function() {
+                                    console.log('data')
+                                   })</script> -->
                             </div>
                         </div>
                     
@@ -171,13 +175,82 @@
                                                 <h5 class="card-title" align="center" >ANÁLISIS EN PROCESO</h5>
                                             </div>
                                         </div>
+                                        
 
                                         <div class="card-body">
-                                            <p class="card-text">Presione RESULTADOS para continuar.</p>
+                                            <p class="card-text" >Presione RESULTADOS para continuar.</p>
                                             <form action="/cancelar/{{messages[0].task}}/3/4/{{messages[0].puerto}}">
                                                 <button id=test class="btn btn-primary" type="submit">Resultados</button>
                                             </form>
                                         </div>
+                                        <p id="results">Resultado: Protegido</p>
+                                        <table class="table table-bordered">
+                                            <thead class="thead-dark">
+                                              <th scope="col">Fecha</th>
+                                              <th scope="col">Puerto</th>
+                                              <th scope="col"scope="col">Evento</th>
+                                            </thead>
+                                            <tbody id="cuerpo">
+                                            </tbody>
+                                          </table>
+                                        <script>
+                                            $('#results').ready(function() {
+                                                var socket = io.connect();
+                                                socket.on("updateSensorData", function (msg) {
+                                                    console.log(msg)
+                                                    /*msg.forEach(element => {
+                                                        console.log(element)
+                                                        console.log("Received sensorData :: " + element.puerto + " :: " + element.tipo);
+                                                    });*/
+                                                    if(msg.length>0){
+                                                    $("#results").html("");
+                                                    $("#results").append('Resultado: Actividad sospechosa detectada' )
+                                                    }
+                                                    $("#cuerpo").html("");
+                                                    
+                                                    //let numFB=countFB(msg)
+                                                    
+                                                    
+                                                    for(var i=0; i<msg.length; i++){
+                                                        if(msg[i].tipo!='Web Attack Brute Force'){
+                                                        var tr = `<tr>
+                                                        <td>`+msg[i].fecha+`</td>
+                                                        <td>`+msg[i].puerto+`</td>
+                                                        <td>`+msg[i].tipo+`</td>
+                                                        </tr>`;
+                                                        $("#cuerpo").append(tr)}
+
+                                                    }
+
+                                                    let count=0;
+                                                    let num=-1;
+                                                    for(var i=0; i<msg.length; i++){
+                                                        if(msg[i].tipo=='Web Attack Brute Force'){
+                                                            count++;
+                                                            if(num==-1){
+                                                            num=i;}
+                                                        }
+                                                    }
+                                                    if (count>10){
+                                                        var tr = `<tr>
+                                                        <td>`+msg[num].fecha+`</td>
+                                                        <td>`+msg[num].puerto+`</td>
+                                                        <td>`+msg[num].tipo+`</td>
+                                                        </tr>`;
+                                                        $("#cuerpo").append(tr)
+                                                    }
+                                                    
+                                                   /* for(let i : msg){
+                                                        console.log(i)
+                                                        console.log("Received sensorData :: " + i.puerto + " :: " + i.tipo);
+                                                    }*/        
+                                                    /*console.log("Received sensorData :: " + msg);
+                                                    const ctx = document.getElementById("message");
+                                                    ctx.append(msg)*/
+                                                    
+                                                });
+                                            });
+                                        </script>
                         
             {% endif %}
             {% if messages[0].analisisMenu==4 %}
@@ -213,9 +286,7 @@
                                                     <p class="card-text">Cantidad encontrada:   {{messages[0].analisis[2].Cantidad}}</p>
                                                     <br><br>
 
-                                                    <p class="card-text">Nombre:                {{messages[0].analisis[3].nombre}}</p>
-                                                    <p class="card-text">Cantidad encontrada:   {{messages[0].analisis[3].Cantidad}}</p>
-                                                    <br><br>
+                                                    
                                                     <form action="/reviewInterfaces/3/2" method="POST">
                                                         <button id=test class="btn btn-danger" type="submit" onclick="location.reload()">Cancelar</button>
                                                     </form>

@@ -78,11 +78,15 @@
             {% if messages[0].menu==5 %}
             
             <div id="parametros" class="container" style="padding: 50px 10px 50px 10px;">
+                <div class="card">
+                    <div class="card-header">
+                    <h4 style="text-align: center;padding: 3px;">Configuración</h4>
+                </div>
+                </div>
                 <div class="card w-90 h-95" style="height: 25rem;">
                     <div class="card-body">
                     {% if messages[0].analisisMenu==1 %}
-                        <h4 style="text-align: center;padding: 3px;">Configuración</h4>
-                
+                    
                         <table class="table table-bordered" >
                             <thead class="thead-dark">
                             <tr>
@@ -130,11 +134,20 @@
                                   <input type="email" class="email" id="email" name="email" placeholder="Email" value="{{messages[0].param.valor}}" >
                                 </div>
                             </div>
-                            <div class="form-group row">
-                              <div class="col-sm-10">
-                                <input type="submit" class="btn btn-primary" id="send-signup" name="signup" value="Registrar" />
-                              </div>
+                            <div class="form-group row" style="float: right;margin-top: 4rem;">
+                                <div class="zoomCentral">
+                                <input type="submit" class="btn btn-primary" id="send-signup" name="signup"   value="Registrar" />
+                                </div>
+                                <p>&nbsp;&nbsp;&nbsp;</p>
+                                <a href="/menu/5/1" style="color: inherit; text-decoration: none; vertical-align: middle;" >
+                                    <div class="zoomCentral">
+                                        <button type="button" class="btn btn-primary">Regresar</button>
+                                    </div>
+                                </a>
+                                <p>&nbsp;&nbsp;</p>
                             </div>
+                            
+                            
                         </form>
                        <!--  <form action="" method="post">
                             <label for="name">Nombre: </label>
@@ -152,12 +165,16 @@
             {% endif %}
             {% if messages[0].menu==4 %}
             
-            <div id="contactos" class="container" style="padding: 50px 10px 50px 10px;">
+            <div id="contactos" class="container " style="padding: 50px 10px 50px 10px;">
+                <div class="card">
+                <div class="card-header">
+                    <h4 style="text-align: center;padding: 3px;">Historial de análisis</h4>
+                </div>
+            </div>
+                {% if messages[0].analisisMenu==1 %}    
                 <div class="card w-90 h-95" style="height: 25rem;">
-                    <div class="card-body">
-                <h4 style="text-align: center;padding: 3px;">Historial de análisis</h4>
-                
-                    <table class="table table-bordered" >
+                    <div class="card-body overflow-auto">
+                    <table class="table table-bordered " >
                         <thead class="thead-dark">
                         <tr>
                             <th scope="col">#</th>
@@ -165,6 +182,7 @@
                             <th scope="col">Fin</th>
                             <th scope="col">Resultado</th>
                             <th scope="col">Estado</th>
+                            <th scope="col">Acciones</th>
                         </tr>
                         </thead>
                         <tbody>
@@ -182,14 +200,61 @@
 
                                 </td>
                                 <td style="text-align: center;"> {{i.estado}} </td>
+                                <td style="text-align: center;"> 
+                                    {% if  i.resultado =='Protegido' %}
+                                    <i class="fas fa-eye" style="color: gray;"></i>
+                                    {% else %}
+                                    <div class="zoomCentral">
+                                    <a href="menu_param/4/2/{{i.id}}"><i class="fas fa-eye"></i></a>
+                                    </div>
+                                    {% endif %}
+                                </td>
                             </tr>
                         {%endfor%}
                         
                         </tbody>
                     </table>
+                </div>
+            
+            </div>
+                {% endif %}
+                {% if messages[0].analisisMenu==2 %}
+                <div class="card w-90 h-95" style="height: 25rem;">
+                    <div class="card-body overflow-auto">
+                    <table class="table table-bordered" >
+                        <thead class="thead-dark" >
+                            <tr>
+                                <th scope="col">Fecha</th>
+                                <th scope="col">Puerto origen</th>
+                                <th scope="col">Puerto destino</th>
+                                <th scope="col">Ip origen</th>
+                                <th scope="col">Ip destino</th>
+                                <th scope="col"scope="col">Evento</th>
+                            </tr>
+                        </thead>
+                        <tbody id="cuerpo">
+                            {%for i in messages[0].param %}
+                            <tr>
+                                <td>{{i.fecha}}</td>
+                                <td>{{i.puerto_origen}}</td>
+                                <td>{{i.puerto_destino}}</td>
+                                <td>{{i.ip_origen}}</td>
+                                <td>{{i.ip_destino}}</td>
+                                <td>{{i.tipo}}</td>
+                            </tr>
+                            {%endfor%}
+                        </tbody>
+                    </table>
+                </div>
+            
+            </div>
+            <form action="/menu/4/1" style="padding: 1%;">
+                <button id=test class="btn btn-primary" type="submit" style="float: right;">Regresar</button>
+            </form>
+                {% endif %}
                 
-            </div>
-            </div>
+            
+            
             </div>
             {% endif %}
             {% if messages[0].menu==3 %}
@@ -207,7 +272,9 @@
                                             <div class="card-body">
                                                 <p class="card-text">Presione Iniciar para comenzar análisis.</p>
                                                 <form action="/reviewInterfaces/3/2" method="POST">
-                                                    <button id=test class="btn btn-primary" type="submit">Iniciar</button>
+                                                    <div class="zoomCentral">
+                                                        <button id=test class="btn btn-primary" type="submit">Iniciar</button>
+                                                    </div>
                                                 </form>
                                             </div>
                     
@@ -223,7 +290,7 @@
                     {% if messages[0].analisisMenu==2 %}
                                         <div class="card text-center ">
                                             <div class="card-header">
-                                                <h3 class="card-title" align="center" >Seleccione una interfaz</h3>
+                                                <h4 class="card-title" align="center" >Seleccione una interfaz</h4>
                                             </div>
                                         </div>
                                         <div class="card mt-3 " style="height: 75%;">
@@ -234,7 +301,7 @@
                                                     <ul class="list-group">
                                                     
                                                     {% for dat in messages[0].interfaces %}
-                                                    <a href="/background_process_test/{{dat.id}}/3/3" value="2" class="list-group-item list-group-item-action">- {{dat.dato}}</a>
+                                                    <a href="/background_process_test/{{dat.id}}/3/3" value="2" class="list-group-item list-group-item-action" style="padding: 3px;">- {{dat.dato}}</a>
                                                     {% endfor %}
                                 
                                                     </ul>
@@ -268,9 +335,10 @@
                                             <tbody id="cuerpo">
                                             </tbody>
                                           </table>
-
                                         <form action="/cancelar/{{messages[0].task}}/3/4/{{messages[0].puerto}}">
-                                            <button id=test class="btn btn-primary" type="submit" style="float: right;">Finalizar</button>
+                                            
+                                                <button id=test class="btn btn-primary" type="submit" style="float: right;">Finalizar</button>
+                                            
                                         </form>
                                         <script>
                                             $('#results').ready(function() {
@@ -306,16 +374,18 @@
                                                         if(msg[i].tipo=='Web Attack Brute Force'){
                                                             count++;
                                                             if(num==-1){
-                                                            num=i;}
+                                                            num=i;
+                                                            }
                                                         }
                                                     }
+                                                    console.log('Count:'+count)
                                                     if (count>10){
                                                         var tr = `<tr>
                                                         <td>`+msg[num].fecha+`</td>
-                                                        <td>`+msg[i].puerto_origen+`</td>
-                                                        <td>`+msg[i].puerto_destino+`</td>
-                                                        <td>`+msg[i].ip_origen+`</td>
-                                                        <td>`+msg[i].ip_destino+`</td>
+                                                        <td>`+msg[num].puerto_origen+`</td>
+                                                        <td>`+msg[num].puerto_destino+`</td>
+                                                        <td>`+msg[num].ip_origen+`</td>
+                                                        <td>`+msg[num].ip_destino+`</td>
                                                         <td>`+msg[num].tipo+`</td>
                                                         </tr>`;
                                                         $("#cuerpo").append(tr)
@@ -380,7 +450,7 @@
                                                     {% endif %}
                                                     
                                                     <a href="/menu/1/1" >
-                                                        <button id=test class="btn btn-primary" type="submit" onclick="location.reload()" style="float: right;padding:5px">Regresar</button>
+                                                            <button id=test class="btn btn-primary" type="submit" onclick="location.reload()" style="float: right;padding:5px">Regresar</button>
                                                     </a>
                                                 </div>
                                                 </div>
@@ -430,7 +500,9 @@
 {% block card1 %}
     <p class="card-text">Presione Iniciar para comenzar análisis.</p>
     <form action="/reviewInterfaces" method="POST">
-        <button id=test class="btn btn-primary" type="submit">Iniciar</button>
+        <div class="zoomCentral">
+            <button id=test class="btn btn-primary" type="submit">Iniciar</button>
+        </div>
     </form>
 {% endblock %}
 

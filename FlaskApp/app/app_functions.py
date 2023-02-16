@@ -96,18 +96,35 @@ class App_functions:
         return data
     
     def create_data_atack(atacks):
-        data = list()
+        count=0
         for i in range(len(atacks)):
-            data.append(
-                {
-                    "puerto_origen": atacks[i].puerto_origen, 
-                    "puerto_destino": atacks[i].puerto_destino, 
-                    "fecha": atacks[i].fecha,
-                    "ip_origen":atacks[i].ip_origen,
-                    "ip_destino":atacks[i].ip_destino,
-                    "tipo":atacks[i].tipo
-                }
-            )
+            if atacks[i].tipo=='Web Attack Brute Force':
+                count+=1
+        data = list()
+
+        for i in range(len(atacks)):
+            if atacks[i].tipo=='Web Attack Brute Force' and count>10:
+                data.append(
+                    {
+                        "puerto_origen": atacks[i].puerto_origen, 
+                        "puerto_destino": atacks[i].puerto_destino, 
+                        "fecha": atacks[i].fecha,
+                        "ip_origen":atacks[i].ip_origen,
+                        "ip_destino":atacks[i].ip_destino,
+                        "tipo":atacks[i].tipo
+                    }
+                )
+            elif atacks[i].tipo!='Web Attack Brute Force':
+                data.append(
+                    {
+                        "puerto_origen": atacks[i].puerto_origen, 
+                        "puerto_destino": atacks[i].puerto_destino, 
+                        "fecha": atacks[i].fecha,
+                        "ip_origen":atacks[i].ip_origen,
+                        "ip_destino":atacks[i].ip_destino,
+                        "tipo":atacks[i].tipo
+                    }
+                )
         #print('puertos: ',puertos)
         return data
 

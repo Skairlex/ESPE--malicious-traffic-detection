@@ -113,6 +113,11 @@ def menu_inicio_param(menuNav,analisisMenu,param):
         parameter=App_functions.format_parameter(query)
         data=App_functions.create_data_table(menuOp,analisisOp,1,'',parameter)
         flash(data)
+    if menuOp==4 and analisisOp==2:
+        query=review_atack_by_id(param)
+        parameter=App_functions.create_data_atack(query)
+        data=App_functions.create_data_table(menuOp,analisisOp,1,'',parameter)
+        flash(data)
     return redirect(url_for('index'))
 
 #BOTON INICIAR
@@ -406,10 +411,17 @@ def update_analisis(task_id,result):
     session.commit()
 
 def review_atacks(id_atack):
-    print(id_atack)
+    #print(id_atack)
     dato = session.query(Resultado).filter(Resultado.task_id==id_atack).all()
     session.close()
     print(len(dato))
+    return dato
+
+def review_atack_by_id(id_atack):
+    #print(id_atack)
+    dato = session.query(Resultado).filter(Resultado.analisis_id==id_atack).all()
+    session.close()
+    print('len',len(dato))
     return dato
 
 def buscar_mail():
@@ -435,6 +447,7 @@ def background_thread():
         print(actual_task_id)
         data=review_atacks(actual_task_id)
         list_atack=App_functions.create_data_atack(data)
+        print('There are:',len(list_atack))
         if sended_mail==False:
             mail=buscar_mail()
             print(mail)

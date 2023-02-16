@@ -317,12 +317,13 @@ class Flow(object):
                 type_atack='Web Attack Brute Force'
                 print(type_atack)
                 actualizar(2)
-                add_atack(type_atack,packet.tp_src,App_functions.get_date(),packet.id_analisis,packet.flow_hash,packet.id_task)
+                add_atack(type_atack,App_functions.get_date(),packet.id_analisis,packet.flow_hash,packet.id_task,packet.ip_src,packet.ip_dst,packet.tp_src,packet.tp_dst)
             if(data==3):
                 type_atack='Web Attack XSS'
                 print(type_atack)
                 actualizar(3)
-                add_atack(type_atack,packet.tp_src,App_functions.get_date(),packet.id_analisis,packet.flow_hash,packet.id_task)
+                #add_atack(type_atack,packet.tp_src,App_functions.get_date(),packet.id_analisis,packet.flow_hash,packet.id_task)
+                add_atack(type_atack,App_functions.get_date(),packet.id_analisis,packet.flow_hash,packet.id_task,packet.ip_src,packet.ip_dst,packet.tp_src,packet.tp_dst)
             #if(data==2):
                 #actualizar(4)
                 #print('Web Attack SQL injection', actualizar(4))

@@ -68,6 +68,81 @@
                     
                     </div>
             {% endif %}
+            {% if messages[0].menu==5 %}
+            
+            <div id="parametros" class="container" style="padding: 50px 10px 50px 10px;">
+                <div class="card w-90 h-95" style="height: 25rem;">
+                    <div class="card-body">
+                    {% if messages[0].analisisMenu==1 %}
+                        <h4 style="text-align: center;padding: 3px;">Configuración</h4>
+                
+                        <table class="table table-bordered" >
+                            <thead class="thead-dark">
+                            <tr>
+                                <th scope="col">Nombre</th>
+                                <th scope="col">Descripción</th>
+                                <th scope="col">Valor</th>
+                                <th scope="col">Acción</th>
+                            </tr>
+                            </thead>
+                            <tbody>
+                            {% for i in messages[0].param %}
+                                <tr>
+                                    <th scope="row" style="text-align: center;">{{i.nombre}}</th>
+                                    <td style="text-align: center;"> {{i.descripcion}} </td>
+                                    <td style="text-align: center;"> {{i.valor}} </td>
+                                    <td style="text-align: center;"> <a href="/menu_param/5/2/{{i.id}}" >Editar
+                                        <i class="fas fa-pencil" style="color: orange;"></i></a>
+                                    </td>
+                                </tr>
+                            {% endfor %}
+                            
+                            </tbody>
+                        </table>
+                    {% endif %}
+                    {% if messages[0].analisisMenu==2 %}
+                        <h4 style="text-align: center;padding: 3px;">Editar parámetro</h4>
+                        <form action="/save_parameter/5/1/{{messages[0].param.id}}" method="POST">
+                            <div class="form-group row">
+                                <label for="name" class="col-sm-2 col-form-label">Nombre:</label>
+                                <div class="col-sm-10">
+                                    <!-- <p style="margin-top: 6px;" name="nombre">{{messages[0].param.nombre}}</p> -->
+                                  <input type="text" class="form-control" id="name" name="name" disabled="true" style="color: black;" placeholder="Nombre" value="{{messages[0].param.nombre}}">
+                                </div> 
+                            </div>
+                            <div class="form-group row">
+                              <label for="description" class="col-sm-2 col-form-label">Descripción</label>
+                              <div class="col-sm-10">
+                                <textarea class="form-control" name="description" id="exampleFormControlTextarea1" rows="3" placeholder="descripción" style="color: black;">{{messages[0].param.descripcion}}</textarea>
+                                <!-- <input type="text" class="form-control" style="color: black;" id="inputPassword3" placeholder="Password" value="{{messages[0].param.descripcion}}"> -->
+                              </div>
+                            </div>
+                            <div class="form-group row">
+                                <label for="email" class="col-sm-2 col-form-label">Email</label>
+                                <div class="col-sm-10">
+                                  <input type="email" class="email" id="email" name="email" placeholder="Email" value="{{messages[0].param.valor}}" >
+                                </div>
+                            </div>
+                            <div class="form-group row">
+                              <div class="col-sm-10">
+                                <input type="submit" class="btn btn-primary" id="send-signup" name="signup" value="Registrar" />
+                              </div>
+                            </div>
+                        </form>
+                       <!--  <form action="" method="post">
+                            <label for="name">Nombre: </label>
+                            <input type="text" id="name" name="name" /><br>
+                            <label for="description">Descripción: </label>
+                            <input type="description" id="description" name="description" /><br>
+                            <label for="email">Email: </label>
+                            <input type="text" id="email" name="email" /><br>
+                            <input type="submit" id="send-signup" name="signup" value="Registrar" />
+                        </form> -->
+                    {% endif %}
+                    </div>
+            </div>
+            </div>
+            {% endif %}
             {% if messages[0].menu==4 %}
             
             <div id="contactos" class="container" style="padding: 50px 10px 50px 10px;">
@@ -86,7 +161,7 @@
                         </tr>
                         </thead>
                         <tbody>
-                        {%for i in messages[0].list_analisis %}
+                        {%for i in messages[0].param %}
                             <tr>
                                 <th scope="row" style="text-align: center;">{{i.id}}</th>
                                 <td style="text-align: center;"> {{i.fechaInicio}} </td>
@@ -120,7 +195,7 @@
                                         <h5 class="card-title">Analisis de tráfico malicioso</h5>
                                     </div>
                                     <div class="card-body " id="inside">
-                                        {% if messages[0].analisisMenu==1 %}
+                    {% if messages[0].analisisMenu==1 %}
                                         <div class="card text-center ">
                                             <div class="card-body">
                                                 <p class="card-text">Presione Iniciar para comenzar análisis.</p>
@@ -144,9 +219,9 @@
                             </div>
                         </div>
                     </div>         
-            {% endif %}
+                    {% endif %}
             
-            {% if messages[0].analisisMenu==2 %}
+                    {% if messages[0].analisisMenu==2 %}
                                         <div class="card text-center ">
                                             <div class="card-header">
                                                 <h3 class="card-title" align="center" >Seleccione una interfaz</h3>
@@ -168,8 +243,8 @@
                                     
                                             </div>
                                         </div>
-            {% endif %}
-            {% if messages[0].analisisMenu==3 %}
+                    {% endif %}
+                    {% if messages[0].analisisMenu==3 %}
                                         <div class="card text-center ">
                                             <div class="card-header">
                                                 <h5 class="card-title" align="center" >ANÁLISIS EN PROCESO</h5>
@@ -183,11 +258,14 @@
                                                 <button id=test class="btn btn-primary" type="submit">Resultados</button>
                                             </form>
                                         </div>
-                                        <p id="results">Resultado: Protegido</p>
-                                        <table class="table table-bordered">
-                                            <thead class="thead-dark">
+                                        <p id="results">Resultado: <span id="result" style="color: green;">Protegido</span></p>
+                                        <table class="table table-bordered" style="font-size: 12px;visibility: hidden;" id="tableAtack">
+                                            <thead class="thead-dark" >
                                               <th scope="col">Fecha</th>
-                                              <th scope="col">Puerto</th>
+                                              <th scope="col">Puerto origen</th>
+                                              <th scope="col">Puerto destino</th>
+                                              <th scope="col">Ip origen</th>
+                                              <th scope="col">Ip destino</th>
                                               <th scope="col"scope="col">Evento</th>
                                             </thead>
                                             <tbody id="cuerpo">
@@ -197,29 +275,28 @@
                                             $('#results').ready(function() {
                                                 var socket = io.connect();
                                                 socket.on("updateSensorData", function (msg) {
+                                                    let detected=false;
                                                     console.log(msg)
                                                     /*msg.forEach(element => {
                                                         console.log(element)
                                                         console.log("Received sensorData :: " + element.puerto + " :: " + element.tipo);
-                                                    });*/
-                                                    if(msg.length>0){
-                                                    $("#results").html("");
-                                                    $("#results").append('Resultado: Actividad sospechosa detectada' )
-                                                    }
+                                                    });*/            
+                                                    //Limpieza de tabla
                                                     $("#cuerpo").html("");
-                                                    
-                                                    //let numFB=countFB(msg)
-                                                    
-                                                    
+                                                    //Atack 
                                                     for(var i=0; i<msg.length; i++){
                                                         if(msg[i].tipo!='Web Attack Brute Force'){
                                                         var tr = `<tr>
                                                         <td>`+msg[i].fecha+`</td>
-                                                        <td>`+msg[i].puerto+`</td>
+                                                        <td>`+msg[i].puerto_origen+`</td>
+                                                        <td>`+msg[i].puerto_destino+`</td>
+                                                        <td>`+msg[i].ip_origen+`</td>
+                                                        <td>`+msg[i].ip_destino+`</td>
                                                         <td>`+msg[i].tipo+`</td>
                                                         </tr>`;
-                                                        $("#cuerpo").append(tr)}
-
+                                                        $("#cuerpo").append(tr)
+                                                        detected=true;
+                                                    }
                                                     }
 
                                                     let count=0;
@@ -234,26 +311,31 @@
                                                     if (count>10){
                                                         var tr = `<tr>
                                                         <td>`+msg[num].fecha+`</td>
-                                                        <td>`+msg[num].puerto+`</td>
+                                                        <td>`+msg[i].puerto_origen+`</td>
+                                                        <td>`+msg[i].puerto_destino+`</td>
+                                                        <td>`+msg[i].ip_origen+`</td>
+                                                        <td>`+msg[i].ip_destino+`</td>
                                                         <td>`+msg[num].tipo+`</td>
                                                         </tr>`;
                                                         $("#cuerpo").append(tr)
+                                                        detected=true;
+                                                    }
+                                                    if(detected){
+                                                    $("#result").html("");
+                                                    $("#result").append('Actividad sospechosa detectada' )
+                                                    document.getElementById('result').style.color = 'red'
+                                                    document.getElementById('tableAtack').style.visibility = 'visible'
+                                                    
                                                     }
                                                     
-                                                   /* for(let i : msg){
-                                                        console.log(i)
-                                                        console.log("Received sensorData :: " + i.puerto + " :: " + i.tipo);
-                                                    }*/        
-                                                    /*console.log("Received sensorData :: " + msg);
-                                                    const ctx = document.getElementById("message");
-                                                    ctx.append(msg)*/
+                                                    
                                                     
                                                 });
                                             });
                                         </script>
                         
-            {% endif %}
-            {% if messages[0].analisisMenu==4 %}
+                    {% endif %}
+                    {% if messages[0].analisisMenu==4 %}
                                         <div class="card text-center ">
                                             <div class="card-header">
                                                 <h5 class="card-title" align="center" >RESULTADOS</h5>
@@ -293,7 +375,7 @@
                                                 </div>
                                             </div>
                                         </div>
-            {% endif %}
+                    {% endif %}
                                         
                                     </div>
                                 </div>

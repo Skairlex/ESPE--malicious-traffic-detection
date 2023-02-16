@@ -20,7 +20,8 @@ from sqlalchemy.orm import sessionmaker
 from flowRecorder import watchInterface,run_by_web
 from app_functions import App_functions
 from readingAlgorithm.readingAlgorith import predict
-from models import Results,Escaner,Bitacora,Base,Analisis,Resultado
+from models import Results,Escaner,Bitacora,Base,Analisis,Resultado,Parametro
+from base_func import crearRegistrosIniciales
 
 #UTILITIES  LIBS
 from random import random
@@ -55,7 +56,7 @@ engine = create_engine('mysql://root:root@localhost:3306/analizerAlchemy')
 Session = sessionmaker(engine)
 session = Session()
 
-
+#Global vars
 thread = None
 thread_lock = Lock()
 runningThread=True
@@ -83,17 +84,36 @@ def menu_inicio(menuNav,analisisMenu):
     print(menuOp)
   
     if menuOp==4:
-        print(menuOp)
-        list_analisis=get_list_analisis()
-        print(list_analisis)
-        data=App_functions.create_data_analisis(menuOp,analisisOp,1,'',list_analisis)
+        #print(menuOp)
+        query=review_analisis()
+        list_analisis=App_functions.convert_analisis_to_list(query)
+        print(len(list_analisis))
+        data=App_functions.create_data_table(menuOp,analisisOp,1,'',list_analisis)
+        print(data)
         #data=App_functions.create_data_menu(menuOp,analisisOp,1,'')
+    elif menuOp==5:
+        query=review_parameter()
+        list_parameter=App_functions.convert_parameters_to_list(query)
+        data=App_functions.create_data_table(menuOp,analisisOp,1,'',list_parameter)
     else:
         data=App_functions.create_data_menu(menuOp,analisisOp,1,'')
     
     flash(data)
     return redirect(url_for('index'))
+
     
+# MENU OPCIONES WITH PARAM
+@app.route('/menu_param/<menuNav>/<analisisMenu>/<param>')
+def menu_inicio_param(menuNav,analisisMenu,param):
+    menuOp = int(format(menuNav))
+    analisisOp = int(format(analisisMenu))
+    param=int(format(param))
+    if menuOp==5 and analisisOp==2:
+        query=review_parameter_by_id(param)
+        parameter=App_functions.format_parameter(query)
+        data=App_functions.create_data_table(menuOp,analisisOp,1,'',parameter)
+        flash(data)
+    return redirect(url_for('index'))
 
 #BOTON INICIAR
 @app.route('/reviewInterfaces/<menuNav>/<analisisMenu>',methods=['POST'])
@@ -103,6 +123,23 @@ def method_name(menuNav,analisisMenu):
     interfaces=watchInterface()
     puertos = App_functions.convert_interfaces(interfaces)
     data=App_functions.create_data_menu(menuOp,analisisOp,1,puertos)
+    flash(data)
+    return redirect(url_for('index'))
+
+@app.route('/save_parameter/<menuNav>/<analisisMenu>/<id>',methods=['POST'])
+def save_parameter(menuNav,analisisMenu,id):
+    menuOp = int(format(menuNav))
+    analisisOp = int(format(analisisMenu))
+    idOp=int(format(id))
+    if request.method == 'POST':
+      result = request.form.to_dict()
+      print(result)
+      print(idOp)
+      edit_parameter(result['description'],result['email'],idOp)
+    query=review_parameter()
+
+    list_parameter=App_functions.convert_parameters_to_list(query)
+    data=App_functions.create_data_table(menuOp,analisisOp,1,'',list_parameter)
     flash(data)
     return redirect(url_for('index'))
 
@@ -277,6 +314,14 @@ def crearRegistros():
     return 'Datos creados alchemy....'
 
 
+def review_analisis():
+    return session.query(Analisis).all()
+
+def review_parameter():
+    return session.query(Parametro).all()
+
+def review_parameter_by_id(id):
+    return session.query(Parametro).filter(Parametro.id==id).first()
 
 #CREAR REGISTROS PARA BITACORA
 def crear_datos_analisis(task_id):
@@ -297,6 +342,12 @@ def actualizar():
 
     return 'Datos actualizados alchemy....'
 
+def edit_parameter(description,email,id):
+    dato = session.query(Parametro).filter(Parametro.id == id).first()
+    dato.descripcion=description
+    dato.valor=email
+    session.commit()
+
 def buscarTipo(tipo):
     #print("BUSCAR")
     dato = session.query(Escaner).filter(Escaner.id == tipo).first()
@@ -314,21 +365,6 @@ def pagina_no_encontrada(error):
     #return render_template("404.html"),404
     return redirect(url_for('index'))
 
-def get_list_analisis():
-    resp = session.query(Analisis).all()
-    list_analisis = list()
-    for i in resp:
-        list_analisis.append(
-            {
-                'id' : i.id, 
-                'fechaInicio' : i.fechaInicio[0:16],
-                'fechaFin':'-' if i.fechaFin is None else i.fechaFin[0:16],
-                'resultado': i.resultado,
-                'task_id':i.task_id,
-                'estado':i.estado
-            }
-        )
-    return list_analisis
 
 def get_data_analisis():
     dato_1 = session.query(Escaner).filter(Escaner.id == 1).first()
@@ -376,6 +412,10 @@ def review_atacks(id_atack):
     print(len(dato))
     return dato
 
+def buscar_mail():
+    session.close()
+    dato = session.query(Parametro).filter(Escaner.id == 1).first()
+    return dato.valor
 
 
 #-------------------------------------------------------------------------------------------------
@@ -389,12 +429,16 @@ def background_thread():
     print("Generating random sensor values")
     global runningThread
     global actual_task_id
+    sended_mail=False
     while runningThread:
         print('generating')
         print(actual_task_id)
         data=review_atacks(actual_task_id)
         list_atack=App_functions.create_data_atack(data)
-        dummy_sensor_value = round(random() * 100, 3)
+        if sended_mail==False:
+            mail=buscar_mail()
+            print(mail)
+            sended_mail= App_functions.send_email(list_atack,mail)
         socketio.emit('updateSensorData', list_atack )
         socketio.sleep(1)
 
@@ -447,6 +491,7 @@ if __name__=='__main__':
     Base.metadata.drop_all(engine)
     Base.metadata.create_all(engine)
     print('Base created...')
+    crearRegistrosIniciales()
     app.add_url_rule('/query_string',view_func=query_string)
     app.register_error_handler(404,pagina_no_encontrada)
     app.run(debug=True,port=5000)

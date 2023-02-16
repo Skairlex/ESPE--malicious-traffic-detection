@@ -1,4 +1,5 @@
 from datetime import datetime
+from mail_sender import sendMail
 
 import pytz
 
@@ -46,13 +47,13 @@ class App_functions:
         }
         return data
 
-    def create_data_analisis(menu,analisisMenu,tipo,interfaces,list_analisis):
+    def create_data_table(menu,analisisMenu,tipo,interfaces,list_table):
         data={
         'menu': menu,
         'analisisMenu': analisisMenu,
         'tipo': tipo,
         'interfaces': interfaces,
-        'list_analisis':list_analisis
+        'param':list_table
         }
         return data
 
@@ -99,11 +100,66 @@ class App_functions:
         for i in range(len(atacks)):
             data.append(
                 {
-                    "puerto": atacks[i].puerto, 
+                    "puerto_origen": atacks[i].puerto_origen, 
+                    "puerto_destino": atacks[i].puerto_destino, 
                     "fecha": atacks[i].fecha,
+                    "ip_origen":atacks[i].ip_origen,
+                    "ip_destino":atacks[i].ip_destino,
                     "tipo":atacks[i].tipo
                 }
             )
         #print('puertos: ',puertos)
         return data
 
+    def send_email(list_atack,mail):
+        if(len(list_atack)<1):
+            return False
+        else:
+            count_force=0
+            count_other=0
+            for i in range(len(list_atack)):
+                if(list_atack[i]['tipo']=='Web Attack Brute Force'):
+                    count_force+=1
+                else:
+                    count_other+=1
+            if(count_force>10 or count_other>0 ):
+               sendMail(mail)
+               return True
+        return False
+
+    def convert_analisis_to_list(analisis):
+        list_analisis = list()
+        for i in analisis:
+            list_analisis.append(
+                {
+                    'id' : i.id, 
+                    'fechaInicio' : i.fechaInicio[0:16],
+                    'fechaFin':'-' if i.fechaFin is None else i.fechaFin[0:16],
+                    'resultado': i.resultado,
+                    'task_id':i.task_id,
+                    'estado':i.estado
+                }
+            )
+        return list_analisis
+        
+    def convert_parameters_to_list(analisis):
+            list_parameter = list()
+            for i in analisis:
+                list_parameter.append(
+                    {
+                        'id' : i.id, 
+                        'nombre' : i.nombre,
+                        'descripcion':i.descripcion,
+                        'valor': i.valor,
+                    }
+                )
+            return list_parameter
+
+    def format_parameter(parameter):
+        return  {
+                    'id' : parameter.id, 
+                    'nombre' : parameter.nombre,
+                    'descripcion':parameter.descripcion,
+                    'valor': parameter.valor,
+                }  
+            

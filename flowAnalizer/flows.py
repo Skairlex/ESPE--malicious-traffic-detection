@@ -254,7 +254,7 @@ class Flow(object):
         #if(flow_dict['flowDuration']>0.1):
         #    attackForce=True
         vector_response=[
-            #flow_dict['flowDuration']*1000000,
+            flow_dict['flowDuration']*1000000,
             flow_dict['f_pktTotalCount'],
             flow_dict['b_pktTotalCount'],
             flow_dict['avg_piat']*1000000,
@@ -281,11 +281,12 @@ class Flow(object):
             if(data==0):
                 print('Beningn')
             if(data==1):
-                print('Web Attack Brute Force')
+                print('DOS Atack')
             if(data==3):
                 print('Web Attack XSS')
             if(data==2):
-                print('Web Attack SQL injection')
+                print('Web Attack Brute Force')
+                
 
 
 

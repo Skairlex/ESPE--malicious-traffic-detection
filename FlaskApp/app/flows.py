@@ -283,7 +283,7 @@ class Flow(object):
         flow_hash = packet.flow_hash
         flow_dict=self.flow_cache[flow_hash]
         vector_response=[
-            #flow_dict['flowDuration']*1000000,
+            flow_dict['flowDuration']*1000000,
             flow_dict['f_pktTotalCount'],
             flow_dict['b_pktTotalCount'],
             flow_dict['avg_piat']*1000000,
@@ -314,6 +314,11 @@ class Flow(object):
                 actualizar(1)
                 #add_atack(type_atack,packet.tp_src,App_functions.get_date(),packet.id_analisis,packet.flow_hash)
             if(data==1):
+                type_atack='DOS Atack'
+                print(type_atack)
+                actualizar(4)
+                add_atack(type_atack,App_functions.get_date(),packet.id_analisis,packet.flow_hash,packet.id_task,packet.ip_src,packet.ip_dst,packet.tp_src,packet.tp_dst)
+            if(data==2):
                 type_atack='Web Attack Brute Force'
                 print(type_atack)
                 actualizar(2)

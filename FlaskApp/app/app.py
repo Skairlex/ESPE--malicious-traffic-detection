@@ -306,7 +306,7 @@ def crearRegistros():
         dato_1 = Escaner(tipo=1, nombre="Benigno",                  cantidad=0)
         dato_2 = Escaner(tipo=2, nombre="Web Attack Brute Force",   cantidad=0)
         dato_3 = Escaner(tipo=3, nombre="Web Attack XSS",           cantidad=0)
-        dato_4 = Escaner(tipo=4, nombre="Web Attack SQL injection", cantidad=0)
+        dato_4 = Escaner(tipo=4, nombre="DOS Atack", cantidad=0)
         session.add(dato_1)
         session.add(dato_2)
         session.add(dato_3)

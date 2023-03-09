@@ -97,13 +97,20 @@ class App_functions:
     
     def create_data_atack(atacks):
         count=0
+        count_dos=0
         for i in range(len(atacks)):
             if atacks[i].tipo=='Web Attack Brute Force':
                 count+=1
+            if atacks[i].tipo=='DOS Atack':
+                count_dos+=1
         data = list()
 
         for i in range(len(atacks)):
-            if atacks[i].tipo=='Web Attack Brute Force' and count>10:
+            print('imors')
+            print(atacks[i])
+            print(atacks[i].tipo)
+            print(count)
+            if atacks[i].tipo=='Web Attack Brute Force' and count>5:
                 data.append(
                     {
                         "puerto_origen": atacks[i].puerto_origen, 
@@ -114,7 +121,18 @@ class App_functions:
                         "tipo":atacks[i].tipo
                     }
                 )
-            elif atacks[i].tipo!='Web Attack Brute Force':
+            elif atacks[i].tipo=='DOS Atack'and count_dos>5:
+                data.append(
+                    {
+                        "puerto_origen": atacks[i].puerto_origen, 
+                        "puerto_destino": atacks[i].puerto_destino, 
+                        "fecha": atacks[i].fecha,
+                        "ip_origen":atacks[i].ip_origen,
+                        "ip_destino":atacks[i].ip_destino,
+                        "tipo":atacks[i].tipo
+                    }
+                )
+            elif atacks[i].tipo=='Web Attack XSS':
                 data.append(
                     {
                         "puerto_origen": atacks[i].puerto_origen, 
@@ -133,13 +151,16 @@ class App_functions:
             return False
         else:
             count_force=0
+            count_dos=0
             count_other=0
             for i in range(len(list_atack)):
                 if(list_atack[i]['tipo']=='Web Attack Brute Force'):
                     count_force+=1
+                elif(list_atack[i]['tipo']=='DOS Atack'):
+                    count_dos+=1
                 else:
                     count_other+=1
-            if(count_force>10 or count_other>0 ):
+            if(count_force>10 or count_dos>10 or count_other>0 ):
                sendMail(mail)
                return True
         return False

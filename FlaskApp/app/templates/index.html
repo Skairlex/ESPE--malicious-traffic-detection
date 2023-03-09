@@ -18,7 +18,7 @@
                             <div class="col-5 align-self-center">
                                 <p>    
                                 <h2 class="text-center">Información</h2>
-                                    MT Analizer es una aplicación web que se encarga
+                                    MT Analyzer es una aplicación web que se encarga
                                     de escanear el trafico de red existente en busqueda
                                     algun conflicto provocado por el trafico de red malicioso.
                                     <br><br>
@@ -54,9 +54,14 @@
                                 <br>
                                 <div>
                                 <h4 class="text-center"><strong>Director del Proyecto</strong></h4>
-                                <br>
                                 <h5 class="text-center">PhD. Walter Fuertes</h5>
                 
+                                </div>
+                                <br>
+                                <div>
+                                    <h4 class="text-center"><strong>Operador</strong></h4>
+                                    <h5 class="text-center">Ing.Marco Bonilla Mgtr.</h5>
+                                    <h6 class="text-center">mabonilla3@espe.edu.ec</h6>
                                 </div>
                                 <br>
                                 <h4 class="text-center"><strong>Equipo de desarrollo</strong></h4>
@@ -354,7 +359,7 @@
                                                     $("#cuerpo").html("");
                                                     //Atack 
                                                     for(var i=0; i<msg.length; i++){
-                                                        if(msg[i].tipo!='Web Attack Brute Force'){
+                                                        if(msg[i].tipo!='Web Attack Brute Force' && msg[i].tipo!='DOS Atack'){
                                                         var tr = `<tr>
                                                         <td>`+msg[i].fecha+`</td>
                                                         <td>`+msg[i].puerto_origen+`</td>
@@ -370,6 +375,8 @@
 
                                                     let count=0;
                                                     let num=-1;
+                                                    let countDos=0
+                                                    let numDos=-1;
                                                     for(var i=0; i<msg.length; i++){
                                                         if(msg[i].tipo=='Web Attack Brute Force'){
                                                             count++;
@@ -377,9 +384,15 @@
                                                             num=i;
                                                             }
                                                         }
+                                                        if(msg[i].tipo=='DOS Atack'){
+                                                            countDos++;
+                                                            if(numDos==-1){
+                                                                numDos=i;
+                                                            }
+                                                        }
                                                     }
                                                     console.log('Count:'+count)
-                                                    if (count>10){
+                                                    if (count>10 ){
                                                         var tr = `<tr>
                                                         <td>`+msg[num].fecha+`</td>
                                                         <td>`+msg[num].puerto_origen+`</td>
@@ -387,6 +400,18 @@
                                                         <td>`+msg[num].ip_origen+`</td>
                                                         <td>`+msg[num].ip_destino+`</td>
                                                         <td>`+msg[num].tipo+`</td>
+                                                        </tr>`;
+                                                        $("#cuerpo").append(tr)
+                                                        detected=true;
+                                                    }
+                                                    if (countDos>10){
+                                                        var tr = `<tr>
+                                                        <td>`+msg[numDos].fecha+`</td>
+                                                        <td>`+msg[numDos].puerto_origen+`</td>
+                                                        <td>`+msg[numDos].puerto_destino+`</td>
+                                                        <td>`+msg[numDos].ip_origen+`</td>
+                                                        <td>`+msg[numDos].ip_destino+`</td>
+                                                        <td>`+msg[numDos].tipo+`</td>
                                                         </tr>`;
                                                         $("#cuerpo").append(tr)
                                                         detected=true;
@@ -435,7 +460,7 @@
                                                     </p>
                                                     <br>
                                                     
-                                                    {% if messages[0].analisis[1].Cantidad>0 %}
+                                                    {% if messages[0].analisis[1].Cantidad>10 %}
                                                     <p class="card-text">
                                                     Nombre:                {{messages[0].analisis[1].nombre}}<br>
                                                     Cantidad:              {{messages[0].analisis[1].Cantidad}}
@@ -446,6 +471,12 @@
                                                     <p class="card-text">
                                                     Nombre:                {{messages[0].analisis[2].nombre}}<br>
                                                     Cantidad:              {{messages[0].analisis[2].Cantidad}}</p>
+                                                    <br>
+                                                    {% endif %}
+                                                    {% if messages[0].analisis[3].Cantidad>10 %}
+                                                    <p class="card-text">
+                                                    Nombre:                {{messages[0].analisis[3].nombre}}<br>
+                                                    Cantidad:              {{messages[0].analisis[3].Cantidad}}</p>
                                                     <br>
                                                     {% endif %}
                                                     
@@ -479,7 +510,7 @@
                             <div class="col-5 align-self-center">
                                 <p>
                                     <h2 class="text-center">Información</h2>
-                                    MT Analizer es una aplicación web que se encarga
+                                    MT Analyzer es una aplicación web que se encarga
                                     de escanear el flujo de paquetes de una red en busqueda
                                     algun conflicto provocado por el tráfico de red malicioso.
                                     <br><br>
